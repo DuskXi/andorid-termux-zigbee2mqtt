@@ -34,7 +34,7 @@ termux-usb -r -e "$WORK_DIR/Termux-serial-tty/ptyserial sleep 86400" $USB_PATH >
 sleep 2
 
 PTY_PATH=$(grep -o '/dev/pts/[0-9]*' "$LOG_FILE" | head -n 1)
-if [ -z "$PTY_PATH" ]; then 
+if [ -z "$PTY_PATH" ]; then
     echo "❌ PTY 创建失败，请查看日志："
     cat "$LOG_FILE"
     exit 1
@@ -51,9 +51,14 @@ echo "[🚀] 正在后台拉起 Zigbee2MQTT 主进程..."
 cd "$WORK_DIR/zigbee2mqtt"
 nohup pnpm start > "$WORK_DIR/zigbee2mqtt.log" 2>&1 &
 
-# 稍等 2 秒让它建立起进程，以便确认是否启动成功
-sleep 2
-if pgrep -f "zigbee2mqtt" >/dev/null || pgrep -f "node index.js" >/dev/null; then
+# 捕获后台进程的 PID
+Z2M_PID=$!
+
+# 稳妥起见，多等一秒让它初始化
+sleep 3
+
+# 使用 kill -0 精准探测进程是否存活
+if kill -0 "$Z2M_PID" 2>/dev/null; then
     echo "==============================================="
     echo "🎉 所有底层服务已成功挂起至后台静默运行！"
     echo "📊 你现在可以关闭这个终端，或运行 ./status.sh 查看状态"
