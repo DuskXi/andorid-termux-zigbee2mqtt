@@ -1,5 +1,7 @@
-# 📱 Termux Zigbee2MQTT Pocket Edition
-## —— 安卓免 Root 极客智能家居网关发行版
+# 📱 基于 Termux 的 Zigbee2MQTT Zigbee 设备移动调试工具脚本集 (Termux Zigbee2MQTT Pocket Toolkit)
+## —— 安卓免 Root 极客智能家居网关工具集
+
+👉 [English Version / 英文文档](README_EN.md)
 
 本项目提供了一套全自动化脚本，能让你在没有任何 Root 权限的正常使用的安卓手机上，完美运行完整的 Zigbee2MQTT (Z2M) 环境。
 
@@ -25,8 +27,8 @@
 
 ### 1. 软件环境配置
 在开始前，请在你的 Android 手机上安装以下三个软件：
-- **Termux**：请务必从 [F-Droid](https://f-droid.org/packages/com.termux/) 下载最新版。**绝对不要**使用 Google Play 版本，因为该版本已停止更新，会导致依赖无法安装。
-- **Termux:API**：从 F-Droid 下载，且其签名必须与安装的 Termux 保持一致。
+- **Termux**：测试环境选择了从Google Play商店下载的版本，确保其签名与 Termux:API 保持一致。
+- **Termux:API**：测试环境选择了从 Google Play 商店下载的版本，确保其签名与 Termux 保持一致。提供访问 Android 系统功能的 API 接口。或使用pkg install termux-api安装，注意版本兼容性。
 - **SerialPipe**：前往 `wh201906/SerialPipe` 下载并安装，推荐使用 Release **v0.0.3**。用于释放 Android 系统对 USB 驱动的底层独占。
 
 ### 2. 物理连接
@@ -68,7 +70,7 @@ nano setup.sh
 #### **❓ 为什么需要这一步操作？（原理解析）**
 - **痛点**：当你插入 USB 串口网关时，Android 内核自带的驱动（如 `ch341.ko`）会瞬间识别并死死占满、独占这个硬件。由于没有 Root 权限，Termux 中的驱动无法强行从系统内核手中抢夺控制权，直接运行会导致 `Device or resource busy (Error 9)`。
 - **破局**：Android 系统提供了官方的 `UsbManager` API，允许普通 App 通过用户手动点击弹窗授权来接管硬件。
-- **拔河逻辑**：我们借助 `SerialPipe` App 向系统发起连接。当你点击“连接”时，系统认为“既然用户手动允许了这个 App，那我就把内核驱动踢掉，把硬件控制权交给该 App”。紧接着，我们手动断开连接。此时，App 释放了硬件，但内核驱动不会立刻返回，USB 接口正处于短暂的 **“无主状态”**。
+- **拔河逻辑**：我们借助 `SerialPipe` App 向系统发起连接。当你点击“连接”时，系统认为“既然用户手动允许了这个 App，那我就把内核驱动挤掉，把硬件控制权交给该 App”。紧接着，我们手动断开连接。此时，App 释放了硬件，但内核驱动不会立刻返回，USB 接口正处于短暂的 **“无主状态”**。
 - **结果**：趁此空档，Termux 的 C++ 守护进程瞬间趁虚而入，通过 FD 文件描述符合法接管硬件，实现了对 USB 硬件的原生读写，完美避开独占限制。
 
 ---
@@ -122,7 +124,7 @@ vi setup.sh
 日常使用时，你只需要用到以下三个脚本：
 
 ### 🟢 起飞：`./enable.sh`
-插入 OTG 网关后运行此脚本，并通过 `SerialPipe` 完成“开启连接 -> 断开连接”的拔河操作。脚本会自动将服务挂起在后台静默运行。
+插入 OTG 网关后运行此脚本，并通过 `SerialPipe` 完成“开启连接 -> 断开连接”的拔河操作。脚本会自动将服务挂起在后台静默运行，并智能轮询日志文件，直到服务初始化握手完成，彻底防范误判。
 
 ### 🔵 巡检：`./status.sh`
 查看当前 USB 挂载情况、硬件守护进程、Socat 转发状态、MQTT 消息队列以及 Z2M 后台状态。排错必备。
@@ -137,7 +139,7 @@ vi setup.sh
 
 ## 🔧 高级修改与自定义指南
 
-为了适配更多不同的 USB 芯片和 Zigbee2MQTT 配置，你可以通过以下方式进行二次魔改：
+为了适配更多不同的 USB 芯片 and Zigbee2MQTT 配置，你可以通过以下方式进行二次魔改：
 
 ### 1. 如何增加其他国产/非标芯片支持？
 由于本项目底层基于 C++ 编译，所有的 USB 芯片 PID 白名单都硬编码在驱动源码中。如果你使用的是其他非标准的芯片：
@@ -152,16 +154,12 @@ vi setup.sh
    nano work/zigbee2mqtt/data/configuration.yaml
    ```
 2. 找到 `serial` 段落，根据你的硬件进行修改：
-    - 适配器协议更改：修改 `adapter: zstack` 为 `adapter: ezsp` 或 `adapter: ember`。
-    - 波特率更改：如果硬件需要，在 `serial` 下加入 `baudrate: 115200`（或其他特定波特率）。
+   - 适配器协议更改：修改 `adapter: zstack` 为 `adapter: ezsp` 或 `adapter: ember`。
+   - 波特率更改：如果硬件需要，在 `serial` 下加入 `baudrate: 115200`（或其他特定波特率）。
 
 ---
 
-## ⚠️ 避坑指南 (Troubleshooting)
-
-### 执行脚本报 `$'\r': command not found` 错误？
-- **原因**：在 Windows 系统 (VS Code) 下编写/修改的脚本带有 CRLF 换行符，而 Linux 只认 LF。
-- **解决**：在 Termux 中运行 `sed -i 's/\r$//' *.sh` 洗掉多余的回车符。未来开发请务必将 IDE 右下角的换行符切换为 LF。
+## ⚠️ 避坑指南 (Troubleshooting) 
 
 ### Zigbee2MQTT 运行几分钟后突然崩溃（Timeout）？
 - **原因**：安卓系统的电池 Doze 模式冻结了 Termux 的后台网络。
