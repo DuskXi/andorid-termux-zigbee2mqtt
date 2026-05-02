@@ -46,24 +46,53 @@ socat TCP-LISTEN:5000,fork,reuseaddr $PTY_PATH,raw,echo=0 &
 mosquitto -c "$WORK_DIR/mosquitto.conf" >/dev/null 2>&1 &
 echo "[✓] Socat 与 Mosquitto 已就绪"
 
-# 5. 后台启动主程序 (pnpm)
+# 5. 后台启动主程序 (pnpm) 并清空旧日志
 echo "[🚀] 正在后台拉起 Zigbee2MQTT 主进程..."
 cd "$WORK_DIR/zigbee2mqtt"
+> "$WORK_DIR/zigbee2mqtt.log" # 抹除旧日志
 nohup pnpm start > "$WORK_DIR/zigbee2mqtt.log" 2>&1 &
 
-# 捕获后台进程的 PID
 Z2M_PID=$!
 
-# 稳妥起见，多等一秒让它初始化
-sleep 3
+# 🔄 6. 智能循环轮询，等待服务完全加载
+echo -n "[...] 正在等待 Z2M 完成初始化与握手"
+MAX_RETRIES=30
+COUNT=0
+SUCCESS=false
 
-# 使用 kill -0 精准探测进程是否存活
-if kill -0 "$Z2M_PID" 2>/dev/null; then
+while [ $COUNT -lt $MAX_RETRIES ]; do
+    # A. 检查 PID 状态：如果 Z2M 进程提前挂了，直接终止循环
+    if ! kill -0 "$Z2M_PID" 2>/dev/null; then
+        echo -e "\n❌ 糟糕：Zigbee2MQTT 进程在启动阶段异常崩溃！"
+        break
+    fi
+
+    # B. 检查日志：看是否打印出了成功上线的字样
+    if grep -q "Zigbee2MQTT started!" "$WORK_DIR/zigbee2mqtt.log"; then
+        SUCCESS=true
+        break
+    fi
+
+    # C. 打印进度点
+    echo -n "."
+    sleep 1
+    COUNT=$((COUNT + 1))
+done
+
+echo "" # 换行
+
+# 7. 最终判决
+if [ "$SUCCESS" = true ]; then
     echo "==============================================="
     echo "🎉 所有底层服务已成功挂起至后台静默运行！"
     echo "📊 你现在可以关闭这个终端，或运行 ./status.sh 查看状态"
     echo "📝 Z2M 运行日志保存在: work/zigbee2mqtt.log"
     echo "==============================================="
 else
-    echo "❌ Z2M 后台拉起失败，请检查 work/zigbee2mqtt.log 里的报错信息。"
+    echo "==============================================="
+    echo "❌ Z2M 后台拉起失败或启动超时！"
+    echo "👉 请查看最后 10 行日志寻找线索："
+    echo "-----------------------------------------------"
+    tail -n 10 "$WORK_DIR/zigbee2mqtt.log"
+    echo "==============================================="
 fi
