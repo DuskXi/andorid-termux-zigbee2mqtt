@@ -92,7 +92,7 @@ nano setup.sh
 - 一个 USB Zigbee 协调器模块。
 
 ### 2. 软件准备
-- 安装 F-Droid 版本的 **Termux** 和 **Termux:API**。
+- 安装GooglePlay/F-Droid 版本的 **Termux** 和 **Termux:API**。
 - 安装 **SerialPipe** App。
 
 ---

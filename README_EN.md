@@ -13,7 +13,7 @@ When you don't carry a heavy Home Assistant (HA) host system, or when debugging 
 
 To ensure the highest success rate when setting up the environment, the following hardware and software combinations have been tested and verified to work flawlessly by developers:
 - **Test Phone**: Android phone used as a daily driver (No Root).
-- **Zigbee Module**: TI CC2652 series coordinator paired with a domestic **CH9102** serial chip (USB VID: `0x1a86`, PID: `0x55d4`).
+- **Zigbee Module**: TI CC2652 series coordinator paired with a **CH9102** serial chip (USB VID: `0x1a86`, PID: `0x55d4`).
 - **Adapter Protocol**: `zstack` (Z-Stack 3.x.0 firmware).
 - **SerialPipe Tool**: Releases **v0.0.3**, source commit Hash: `5102b429335f48b0a1bb0ffd32917f28b53ac2e4`.
 
@@ -90,7 +90,7 @@ The script will automatically bring up the `SerialPipe` app. Please follow these
 - A USB Zigbee coordinator module.
 
 ### 2. Software
-- F-Droid version of **Termux** and **Termux:API**.
+-GooglePlay/F-Droid version of **Termux** and **Termux:API**.
 - The **SerialPipe** App.
 
 ---
