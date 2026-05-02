@@ -1,7 +1,22 @@
 # 📱 基于 Termux 的 Zigbee2MQTT Zigbee 设备移动调试工具脚本集 (Termux Zigbee2MQTT Pocket Toolkit)
 ## —— 安卓免 Root 极客智能家居网关工具集
 
-👉 [English Version / 英文文档](README_EN.md)
+# 📱 Termux Zigbee2MQTT Pocket Toolkit 👉 [English Version / 英文文档](README_EN.md)
+## —— An Android No-Root Geek Smart Home Gateway & Debugging Toolset
+
+This project provides a suite of fully automated scripts that allow you to seamlessly run a complete Zigbee2MQTT (Z2M) environment on a normal, non-rooted Android phone.
+
+Note: For certain mobile devices that tend to aggressively kill or freeze background processes, it is highly recommended to use the floating window feature to keep Termux minimized on the screen. This prevents the application from being frozen, which can lead to device disconnections or process failures.
+
+If you encounter issues such as failing to operate the Zigbee2MQTT web interface or failing to pair new devices while Termux is in the background, it is very likely because the app has been killed or frozen by the system.
+
+### 🎯 Intent & Use Case
+The core value of this project lies in: **Portability and Emergency Testing**.
+When you don't carry a heavy Home Assistant (HA) host system, or when debugging on a new property or construction site, you only need this **non-rooted daily-use phone + a USB Zigbee coordinator module**. This allows you to quickly set up a temporary Zigbee2MQTT gateway anywhere, anytime, to test, pair, and verify any Zigbee devices (such as temperature/humidity sensors, switches, plugs, etc.) in the field.
+
+
+
+---
 
 本项目提供了一套全自动化脚本，能让你在没有任何 Root 权限的正常使用的安卓手机上，完美运行完整的 Zigbee2MQTT (Z2M) 环境。
 
