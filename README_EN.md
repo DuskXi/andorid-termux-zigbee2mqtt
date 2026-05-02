@@ -3,6 +3,10 @@
 
 This project provides a suite of fully automated scripts that allow you to seamlessly run a complete Zigbee2MQTT (Z2M) environment on a normal, non-rooted Android phone.
 
+Note: For certain mobile devices that tend to aggressively kill or freeze background processes, it is highly recommended to use the floating window feature to keep Termux minimized on the screen. This prevents the application from being frozen, which can lead to device disconnections or process failures.
+
+If you encounter issues such as failing to operate the Zigbee2MQTT web interface or failing to pair new devices while Termux is in the background, it is very likely because the app has been killed or frozen by the system.
+
 ### 🎯 Intent & Use Case
 The core value of this project lies in: **Portability and Emergency Testing**.
 When you don't carry a heavy Home Assistant (HA) host system, or when debugging on a new property or construction site, you only need this **non-rooted daily-use phone + a USB Zigbee coordinator module**. This allows you to quickly set up a temporary Zigbee2MQTT gateway anywhere, anytime, to test, pair, and verify any Zigbee devices (such as temperature/humidity sensors, switches, plugs, etc.) in the field.
